@@ -47,7 +47,7 @@ namespace GUI
 				asp.Add(MainModel.GetAverageShortestPath());
 				clustering.Add(MainModel.GetClusteringRatio());
 			}
-
+			percolation = percolation.ToDictionary(pair => pair.Key, pair => pair.Value / ExperimentCount);
 
 			var pt = percolation.First(pair => pair.Value <= 0.5).Key / 100d;
 			PercolationPoints = new List<DataPoint>(percolation.Select(pair => new DataPoint(pair.Key , 1-pair.Value)));
