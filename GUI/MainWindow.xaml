@@ -1,0 +1,172 @@
+﻿<Window x:Class="GUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GUI"
+        xmlns:helpers="clr-namespace:GUI.Helpers"
+        xmlns:System="clr-namespace:System;assembly=mscorlib"
+        xmlns:enums="clr-namespace:GraphSdk.Enums;assembly=GraphSdk"
+        xmlns:oxy="http://oxyplot.org/wpf"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="800" Width="1100">
+	<Window.Resources>
+		<helpers:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+		<helpers:IntToStringConverter x:Key="IntToStringConverter" />
+		<helpers:DoubleToStringConverter x:Key="DoubleToStringConverter" />
+		<ObjectDataProvider x:Key="graphType" MethodName="GetValues"
+		                    ObjectType="{x:Type System:Enum}">
+			<ObjectDataProvider.MethodParameters>
+				<x:Type TypeName="enums:GraphType"/>
+			</ObjectDataProvider.MethodParameters>
+		</ObjectDataProvider>
+	</Window.Resources>
+	<Window.DataContext>
+		<local:MainViewModel/>
+	</Window.DataContext>
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition />
+		</Grid.RowDefinitions>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto"/>
+			<ColumnDefinition/>
+		</Grid.ColumnDefinitions>
+
+		<StackPanel Grid.Column="0" Grid.Row="0" Margin="10">
+			<StackPanel Orientation="Horizontal" Margin="5">
+				<TextBlock Name="ExperimentCountTextBlock" Text="Кол-во экспериментов: "/>
+				<TextBox Name="ExperimentCountTextBox" Width="50" 
+				         Text="{Binding ExperimentCount, Converter={StaticResource IntToStringConverter}}"
+				         PreviewTextInput="OnlyNumbersTextBox_OnPreviewTextInput"/>
+			</StackPanel>
+			<StackPanel Orientation="Horizontal" Margin="5">
+				<TextBlock Name="NodeCountTextBlock" Text="Кол-во узлов: "/>
+				<TextBox Name="NodeCountTextBox" Width="50"				    
+				         Text="{Binding VertexCount, Converter={StaticResource IntToStringConverter}}"
+				         PreviewTextInput="OnlyNumbersTextBox_OnPreviewTextInput"/>
+
+			</StackPanel>
+			<StackPanel Orientation="Horizontal" Margin="5">
+				<TextBlock Name="ConnectionPercentTextBlock" Text="Плотность ребер (%): "/>
+				<TextBox Name="ConnectionPercentTextBox" Width="50"		
+				         Text="{Binding ConnectionPercent, Converter={StaticResource IntToStringConverter}}"
+				         PreviewTextInput="OnlyPercentsTextBox_OnPreviewTextInput"/>
+
+			</StackPanel>
+			<StackPanel Orientation="Horizontal" Margin="5" Visibility="{Binding NonPlanarRadioButton, Converter={StaticResource BoolToVisibilityConverter}}">
+				<TextBlock Name="NonPlanarConnectionPercentTextBlock" Text="Процент замены непланарных ребер (%): "/>
+				<TextBox Name="NonPlanarConnectionPercentTextBox" Width="50" 
+				         Text="{Binding NonPlanarConnectionPercent, Converter={StaticResource IntToStringConverter}}"
+				         PreviewTextInput="OnlyPercentsTextBox_OnPreviewTextInput"/>
+			</StackPanel>
+			<StackPanel Orientation="Horizontal" Margin="5" Visibility="{Binding NonPlanarRadioButton, Converter={StaticResource BoolToVisibilityConverter}}">
+				<TextBlock Text="Заменять имеющиеся связи: "/>
+				<CheckBox IsChecked="{Binding ReplaceConnections}"
+					Visibility="{Binding NonPlanarRadioButton, Converter={StaticResource BoolToVisibilityConverter}}"/>
+			</StackPanel>
+			<StackPanel Orientation="Horizontal" Margin="5">
+				<TextBlock Text="Тип сети: "/>
+				<ComboBox ItemsSource="{Binding Source={StaticResource graphType}}" SelectedItem="{Binding GraphType}"/>
+			</StackPanel>
+		</StackPanel>
+
+		<StackPanel Grid.Row="1" Grid.Column="0" Margin="10" Orientation="Horizontal" Name="GroupBoxPanel">
+			<GroupBox Header="Планарность" HorizontalAlignment="Left" Margin="5">
+				<StackPanel>
+					<RadioButton Content="Планарный" GroupName="PlanarityGroup" IsChecked="{Binding PlanarRadioButton}"/>
+					<RadioButton Content="Непланарный" GroupName="PlanarityGroup" IsChecked="{Binding NonPlanarRadioButton}"/>
+				</StackPanel>
+			</GroupBox>
+			<GroupBox Header="Тип эксперимента" HorizontalAlignment="Left" Margin="5">
+				<StackPanel>
+					<RadioButton Content="Выключение узлов" GroupName="ExperimentType" IsChecked="{Binding NodeRadioButton}"/>
+					<RadioButton Content="Выключение связей" GroupName="ExperimentType" IsChecked="{Binding ConnectionRadioButton}"/>
+				</StackPanel>
+			</GroupBox>
+		</StackPanel>
+
+		<StackPanel Margin="10" Grid.Row="2" Grid.Column="0" Name="ButtonPanel">
+			<Button Name="GeneratePlanarButton" Content="Построить сеть" 
+			        Margin="5" Width="100" HorizontalAlignment="Left"
+			        Command="{Binding GraphGenerateCommand}"/>
+			<StackPanel Orientation="Horizontal">
+				<Button Name="CountPercolationThresholdButton" Content="Расчет значений" 
+			        Margin="5" Width="100" HorizontalAlignment="Left"
+			        Command="{Binding CountPercolationCommand}"/>
+				<Button Name="CancelButton" Content="Отменить" 
+				        Margin="5" Width="100" HorizontalAlignment="Left"
+				        Command="{Binding CancelCommand}"/>
+			</StackPanel>
+		</StackPanel>
+
+		<!--<ItemsControl Grid.Column="0" Grid.Row="3" ItemsSource="{Binding PercolationCanvasItemsSource}" Margin="5">
+			<ItemsControl.ItemsPanel>
+				<ItemsPanelTemplate>
+					<Canvas />
+				</ItemsPanelTemplate>
+			</ItemsControl.ItemsPanel>
+		</ItemsControl>-->
+		<oxy:Plot Grid.Column="0" Grid.Row="3" Title="Перколяция" Height="240" Width="420" VerticalAlignment="Top"
+		          LegendFontSize="9" LegendPosition="LeftTop">
+			<oxy:Plot.Axes>
+				<oxy:LinearAxis Title="p вознкновения кластера" FontSize="10"/>
+				<oxy:LinearAxis Position="Bottom" Title="Доля активных узлов" FontSize="12"/>
+			</oxy:Plot.Axes>
+			<oxy:Plot.Series>
+				<oxy:LineSeries ItemsSource="{Binding PercolationPoints}" Title="Функция перколяции" Color="Blue"/>
+				<oxy:LineSeries ItemsSource="{Binding ThresholdPoints}" Title="Порог перколяции" Color="Red"/>
+				<oxy:LineSeries Visibility="{Binding TrueThresholdVisibility, Converter={StaticResource BoolToVisibilityConverter}}"
+					ItemsSource="{Binding TrueThresholdPoints}" Title="Эталон порога перколяции" Color="Green"/>
+			</oxy:Plot.Series>
+		</oxy:Plot>
+
+		<StackPanel Grid.Column="1" Grid.Row="0" Grid.RowSpan="4">
+			<StackPanel  Orientation="Horizontal">
+				<StackPanel Margin="5"  >
+					<TextBlock Text="Среднее кол-во ребер" />
+					<TextBlock Text="на одну вершину (M) : " />
+					<TextBlock  FontSize="20" Foreground="CornflowerBlue"
+				            Text="{Binding AverageLinkCount, Converter={StaticResource DoubleToStringConverter}}"/>
+				</StackPanel>
+				<StackPanel Margin="5">
+					<TextBlock Text="Порог перколяции (P) : " />
+					<TextBlock Text="" />
+					<TextBlock  FontSize="20" Foreground="IndianRed"
+				            Text="{Binding PercolationThreshold, Converter={StaticResource DoubleToStringConverter}}"/>
+				</StackPanel>
+				<StackPanel Margin="5">
+					<TextBlock Text="P*100/M : " />
+					<TextBlock Text="" />
+					<TextBlock  FontSize="20" Foreground="DarkMagenta"
+				            Text="{Binding PercolationThresholdPerAverageLinkCount, Converter={StaticResource DoubleToStringConverter}}"/>
+				</StackPanel>
+				<StackPanel Margin="5">
+					<TextBlock Text="Средний минимальный " />
+					<TextBlock Text="путь в графе (L) : " />
+					<TextBlock  FontSize="20" Foreground="IndianRed"
+				            Text="{Binding AverageShortestPath, Converter={StaticResource DoubleToStringConverter}}"/>
+				</StackPanel>
+				<StackPanel Margin="5">
+					<TextBlock Text="Коэффициент" />
+					<TextBlock Text="кластеризации (C) : " />
+					<TextBlock  FontSize="20" Foreground="IndianRed"
+				            Text="{Binding ClusteringRatio, Converter={StaticResource DoubleToStringConverter}}"/>
+				</StackPanel>
+			</StackPanel>
+
+			<ItemsControl  ItemsSource="{Binding CanvasItemsSource}" Name="GraphCanvas">
+				<ItemsControl.ItemsPanel>
+					<ItemsPanelTemplate>
+						<Canvas/>
+					</ItemsPanelTemplate>
+				</ItemsControl.ItemsPanel>
+			</ItemsControl>
+		</StackPanel>
+
+	</Grid>
+
+</Window>

@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.645
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GUI", "GUI\GUI.csproj", "{CAED4C1F-AA82-4720-93F3-85775F1F1446}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphSdk", "GraphSdk\GraphSdk.csproj", "{51AC703C-A8AD-46C3-A9E7-0B68A9AC7E03}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlaneGraph", "PlaneGraph\PlaneGraph.csproj", "{3616B03D-B240-4D52-B392-20702B11090B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Graphs", "Graphs", "{211997B3-A75A-4D01-ACCF-9EF932FC2B3F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CubicLattice", "CubicLattice\CubicLattice.csproj", "{CB1B9964-2021-4D12-B1CD-809308C3EBA9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CAED4C1F-AA82-4720-93F3-85775F1F1446}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAED4C1F-AA82-4720-93F3-85775F1F1446}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CAED4C1F-AA82-4720-93F3-85775F1F1446}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CAED4C1F-AA82-4720-93F3-85775F1F1446}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51AC703C-A8AD-46C3-A9E7-0B68A9AC7E03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51AC703C-A8AD-46C3-A9E7-0B68A9AC7E03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51AC703C-A8AD-46C3-A9E7-0B68A9AC7E03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51AC703C-A8AD-46C3-A9E7-0B68A9AC7E03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3616B03D-B240-4D52-B392-20702B11090B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3616B03D-B240-4D52-B392-20702B11090B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3616B03D-B240-4D52-B392-20702B11090B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3616B03D-B240-4D52-B392-20702B11090B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CB1B9964-2021-4D12-B1CD-809308C3EBA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB1B9964-2021-4D12-B1CD-809308C3EBA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB1B9964-2021-4D12-B1CD-809308C3EBA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB1B9964-2021-4D12-B1CD-809308C3EBA9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3616B03D-B240-4D52-B392-20702B11090B} = {211997B3-A75A-4D01-ACCF-9EF932FC2B3F}
+		{CB1B9964-2021-4D12-B1CD-809308C3EBA9} = {211997B3-A75A-4D01-ACCF-9EF932FC2B3F}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C53240A4-CAF3-4DA3-8899-1E057C1A73F3}
+	EndGlobalSection
+EndGlobal
