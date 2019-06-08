@@ -16,124 +16,6 @@ namespace GraphSdk
 		public static double GetAverageLinkCount(Graph graph) =>
 			(double)graph.Edges.Count / graph.Vertices.Count * 2;
 
-		public static int GetVertexPercolationThreshold(Graph graph)
-		{
-			var inactiveCount = 0;
-			var active = graph.Vertices.ToDictionary(vertex => vertex.Id, vertex => true);
-			//do
-			//{
-			//	active[graph.Vertices[_random.Next(graph.Vertices.Count)].Id] = false;
-			//} while (active.Count(pair => !pair.Value) < inactiveCount);
-
-			//Выбираем два случайных не связанных узла
-			var a = graph.Vertices[_random.Next(graph.Vertices.Count)];
-			Vertex b;
-			do
-				b = graph.Vertices[_random.Next(graph.Vertices.Count)];
-			while (a.ConnectedVertices.Exists(vertex => vertex.Id == b.Id));
-			bool isPathFound;
-			do
-			{
-				var used = graph.Vertices.ToDictionary(vertex => vertex.Id, vertex => false);
-				isPathFound = false;
-				DfsPathSearch(a);
-				void DfsPathSearch(Vertex c)
-				{
-					if (!active[c.Id] || used[c.Id])
-						return;
-					used[c.Id] = true;
-					if (c.ConnectedVertices.Exists(vertex => vertex.Id == b.Id))
-					{
-						isPathFound = true;
-						return;
-					}
-
-					foreach (var connectedVertex in c.ConnectedVertices)
-					{
-						if (isPathFound)
-							return;
-						DfsPathSearch(connectedVertex);
-					}
-				}
-			} while (isPathFound && Inactivate() < graph.Vertices.Count);
-
-			return inactiveCount;
-
-
-			int Inactivate()
-			{
-				//var toDeactivate = new List<Vertex>();
-				//foreach (var vertex in graph.Vertices)
-				//	if (active[vertex.Id] && vertex.ConnectedVertices.Any(v => !active[v.Id]))
-				//		toDeactivate.Add(vertex);
-				//foreach (var vertex in toDeactivate) active[vertex.Id] = false;
-				//return inactiveCount += toDeactivate.Count;
-				active[_random.Next(active.Count)] = false;
-				return ++inactiveCount;
-			}
-		}
-
-		public static int GetEdgePercolationThreshold(Graph graph)
-		{
-			var inactiveCount = 0;
-			var active = graph.Edges.ToDictionary(edge => edge, edge => true);
-			//do
-			//{
-			//	active[graph.Edges[_random.Next(graph.Edges.Count)]] = false;
-			//} while (active.Count(pair => !pair.Value) < inactiveCount);
-
-			var edgeConnectivity = graph.GetEdgeConnectivity();
-			//Выбираем два случайных не связанных узла
-			var a = graph.Vertices[_random.Next(graph.Vertices.Count)];
-			Vertex b;
-			do
-				b = graph.Vertices[_random.Next(graph.Vertices.Count)];
-			while (a.ConnectedVertices.Exists(vertex => vertex.Id == b.Id));
-			bool isPathFound;
-			var used = graph.Edges.ToDictionary(edge => edge, edge => false);
-			do
-			{
-				foreach (var edge in graph.Edges) used[edge] = false;
-				isPathFound = false;
-				DfsPathSearch(a);
-
-				void DfsPathSearch(Vertex c)
-				{
-					if (c.Equals(b))
-					{
-						isPathFound = true;
-						return;
-					}
-
-					foreach (var connectedVertex in c.ConnectedVertices)
-					{
-						if (isPathFound)
-							return;
-						if ((!active[new Edge(c, connectedVertex)]) || used[new Edge(c, connectedVertex)])
-							continue;
-						used[new Edge(c, connectedVertex)] = true;
-						DfsPathSearch(connectedVertex);
-					}
-				}
-
-
-
-			} while (isPathFound && Inactivate() < graph.Edges.Count);
-
-			return inactiveCount;
-			int Inactivate()
-			{
-				//var toDeactivate = new List<Edge>();
-				//foreach (var edge in graph.Edges)
-				//	if (active[edge] && edgeConnectivity[edge].Any(_ => !active[_]))
-				//		toDeactivate.Add(edge);
-				//foreach (var edge in toDeactivate) active[edge] = false;
-				//return inactiveCount += toDeactivate.Count;
-				active[graph.Edges[_random.Next(graph.Edges.Count)]] = false;
-				return ++inactiveCount;
-			}
-		}
-
 		private static bool CheckPath(this Graph graph, Vertex a, Vertex b, Dictionary<Edge, bool> active)
 		{
 			var distance = graph.Vertices.ToDictionary(vertex => vertex.Id, vertex => int.MaxValue);
@@ -181,7 +63,7 @@ namespace GraphSdk
 
 		}
 
-		public static double GetNewVertexPercolation(Graph graph, double probability)
+		public static double GetVertexPercolation(Graph graph, double probability)
 		{
 			var active = graph.Vertices.ToDictionary(vertex => vertex.Id, vertex => _random.NextDouble() >= probability);
 			var list = graph.Vertices.Where(vertex => active[vertex.Id]).ToList();
@@ -205,7 +87,7 @@ namespace GraphSdk
 			return (double)counter / tryCount;
 		}
 
-		public static double GetNewEdgePercolation(Graph graph, double probability)
+		public static double GetEdgePercolation(Graph graph, double probability)
 		{
 			var counter = 0;
 			var tryCount = 10;

@@ -61,7 +61,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="MainWindow.xaml">
+    <Page Include="MainView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -73,12 +73,11 @@
     <Compile Include="Helpers\CommandWrapper.cs" />
     <Compile Include="Helpers\DoubleToStringConverter.cs" />
     <Compile Include="Helpers\IntToStringConverter.cs" />
-    <Compile Include="Helpers\NotifyObject.cs" />
     <Compile Include="DataViewModel.cs" />
     <Compile Include="MainModel.cs" />
     <Compile Include="MainViewModel.cs" />
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
+    <Compile Include="MainView.xaml.cs">
+      <DependentUpon>MainView.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

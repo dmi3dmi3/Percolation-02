@@ -53,11 +53,11 @@ namespace GUI
 			{
 				case ExperimentType.Nodes:
 					for (double i = 0; i <= 1.001; i += 0.01)
-						steps.Add(i, CalculatingTools.GetNewVertexPercolation(_graph, i));
+						steps.Add(i, CalculatingTools.GetVertexPercolation(_graph, i));
 					break;
 				case ExperimentType.Connections:
 					for (double i = 0; i <= 1.001; i += 0.01)
-						steps.Add(i, CalculatingTools.GetNewEdgePercolation(_graph, i));
+						steps.Add(i, CalculatingTools.GetEdgePercolation(_graph, i));
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(experimentType), experimentType, null);

@@ -4,15 +4,18 @@ using OxyPlot;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using GUI.Annotations;
 
 namespace GUI
 {
-	public class DataViewModel : NotifyObject
+	public class DataViewModel : INotifyPropertyChanged
 	{
 		public DataViewModel()
 		{
@@ -392,5 +395,13 @@ namespace GUI
 		private bool _replaceConnections;
 
 		#endregion
+
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		[NotifyPropertyChangedInvocator]
+		protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+		{
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+		}
 	}
 }
