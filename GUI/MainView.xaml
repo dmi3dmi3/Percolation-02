@@ -57,6 +57,20 @@
 				         PreviewTextInput="OnlyPercentsTextBox_OnPreviewTextInput"/>
 
 			</StackPanel>
+			<StackPanel Orientation="Horizontal" Margin="5">
+				<TextBlock Text="Кол-во долей вероятности: "/>
+				<TextBox  Width="50"		
+				         Text="{Binding ProbabilityCount, Converter={StaticResource IntToStringConverter}}"
+				         PreviewTextInput="OnlyNumbersTextBox_OnPreviewTextInput"/>
+
+			</StackPanel>
+			<StackPanel Orientation="Horizontal" Margin="5">
+				<TextBlock Text="Кол-во экспериментов на вероятность: "/>
+				<TextBox  Width="50"		
+				         Text="{Binding TryCount, Converter={StaticResource IntToStringConverter}}"
+				         PreviewTextInput="OnlyNumbersTextBox_OnPreviewTextInput"/>
+
+			</StackPanel>
 			<StackPanel Orientation="Horizontal" Margin="5" Visibility="{Binding NonPlanarRadioButton, Converter={StaticResource BoolToVisibilityConverter}}">
 				<TextBlock Name="NonPlanarConnectionPercentTextBlock" Text="Процент замены непланарных ребер (%): "/>
 				<TextBox Name="NonPlanarConnectionPercentTextBox" Width="50" 
@@ -89,20 +103,22 @@
 			</GroupBox>
 		</StackPanel>
 
-		<StackPanel Margin="10" Grid.Row="2" Grid.Column="0" Name="ButtonPanel">
-			<Button Name="GeneratePlanarButton" Content="Построить сеть" 
-			        Margin="5" Width="100" HorizontalAlignment="Left"
-			        Command="{Binding GraphGenerateCommand}"/>
-			<StackPanel Orientation="Horizontal">
-				<Button Name="CountPercolationThresholdButton" Content="Расчет значений" 
-			        Margin="5" Width="100" HorizontalAlignment="Left"
-			        Command="{Binding CountPercolationCommand}"/>
-				<Button Name="CancelButton" Content="Отменить" 
+		<StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal">
+			<StackPanel Margin="10" Name="ButtonPanel">
+				<StackPanel Orientation="Horizontal">
+					<Button Name="GeneratePlanarButton" Content="Построить сеть" 
 				        Margin="5" Width="100" HorizontalAlignment="Left"
-				        Command="{Binding CancelCommand}"/>
+				        Command="{Binding GraphGenerateCommand}" IsEnabled="{Binding IsNotRunning}"/>
+					<Button Name="CountPercolationThresholdButton" Content="Расчет значений" 
+			        Margin="5" Width="100" HorizontalAlignment="Left"
+			        Command="{Binding CountPercolationCommand}" IsEnabled="{Binding IsNotRunning}"/>
+				</StackPanel>
+				<Button Name="CancelButton" Content="Отменить" 
+			        Margin="5" Width="100" HorizontalAlignment="Left"
+			        Command="{Binding CancelCommand}" IsEnabled="{Binding IsRunning}"/>
 			</StackPanel>
+			<TextBlock Text="{Binding Status}" Margin="0, 20"/>
 		</StackPanel>
-
 		<!--<ItemsControl Grid.Column="0" Grid.Row="3" ItemsSource="{Binding PercolationCanvasItemsSource}" Margin="5">
 			<ItemsControl.ItemsPanel>
 				<ItemsPanelTemplate>

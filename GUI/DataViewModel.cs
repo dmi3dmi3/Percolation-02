@@ -1,4 +1,5 @@
 ﻿using GraphSdk.Enums;
+using GUI.Annotations;
 using GUI.Helpers;
 using OxyPlot;
 using System;
@@ -11,7 +12,6 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using GUI.Annotations;
 
 namespace GUI
 {
@@ -24,6 +24,8 @@ namespace GUI
 			ExperimentCount = 1;
 			VertexCount = 100;
 			ConnectionPercent = 100;
+			TryCount = 50;
+			ProbabilityCount = 1000;
 
 			IsRunning = false;
 
@@ -252,13 +254,13 @@ namespace GUI
 		#region CommandsForBinding
 
 		public ICommand GraphGenerateCommand => _graphGenerateCommand ?? (_graphGenerateCommand
-												   = new CommandWrapper(OnGraphGenerate, o => !IsRunning));
+												   = new CommandWrapper(OnGraphGenerate));
 
 		public ICommand CountPercolationCommand => _countPercolationCommand ?? (_countPercolationCommand
-													   = new CommandWrapper(OnPercolationCount, o => !IsRunning));
+													   = new CommandWrapper(OnPercolationCount));
 
 		public ICommand CancelCommand => _cancelCommand ?? (_cancelCommand
-											 = new CommandWrapper(Cancel, o => IsRunning));
+											 = new CommandWrapper(Cancel));
 
 		#endregion
 
@@ -317,6 +319,37 @@ namespace GUI
 			}
 		}
 
+		public string Status
+		{
+			get => _status;
+			set
+			{
+				if (value == _status) return;
+				_status = value;
+				OnPropertyChanged();
+			}
+		}
+		public int ProbabilityCount
+		{
+			get => _probabilityCount;
+			set
+			{
+				if (value.Equals(_probabilityCount)) return;
+				_probabilityCount = value;
+				OnPropertyChanged();
+			}
+		}
+
+		public int TryCount
+		{
+			get => _tryCount;
+			set
+			{
+				if (value == _tryCount) return;
+				_tryCount = value;
+				OnPropertyChanged();
+			}
+		}
 		protected virtual void OnPercolationCount(object obj = null) { }
 		protected virtual void OnGraphGenerate(object obj = null) { }
 		protected virtual void Cancel(object obj = null) { }
@@ -369,7 +402,20 @@ namespace GUI
 					CanvasItemsSource.Add(item);
 		}
 
-		protected bool IsRunning;
+		public bool IsNotRunning => !IsRunning;
+
+		public bool IsRunning
+		{
+			get => _isRunning;
+			set
+			{
+				if (value == _isRunning) return;
+				_isRunning = value;
+				OnPropertyChanged();
+				OnPropertyChanged(nameof(IsNotRunning));
+			}
+		}
+
 		#region Private fields
 		private bool _planarRadioButton;
 		private bool _nonPlanarRadioButton;
@@ -382,6 +428,8 @@ namespace GUI
 		private int _vertexCount;
 		private int _connectionPercent;
 		private int _nonPlanarConnectionPercent;
+		private int _probabilityCount;
+		private int _tryCount;
 		private double _averageLinkCount;
 		private double _percolationThreshold;
 		private double _averageShortestPath;
@@ -393,6 +441,8 @@ namespace GUI
 		private IList<DataPoint> _trueThresholdPoints;
 		private bool _trueThresholdVisibility;
 		private bool _replaceConnections;
+		private bool _isRunning;
+		private string _status;
 
 		#endregion
 

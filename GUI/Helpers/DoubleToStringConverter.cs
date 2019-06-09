@@ -16,7 +16,7 @@ namespace GUI.Helpers
 
 		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			return value != null ? double.Parse(value.ToString()) : 0;
+			return value != null && string.IsNullOrWhiteSpace((string) value) ? double.Parse(value.ToString()) : 0;
 		}
 	}
 }

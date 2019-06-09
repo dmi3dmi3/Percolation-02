@@ -7,12 +7,7 @@ namespace GraphSdk
 {
 	public static class CalculatingTools
 	{
-		private static Random _random;
 
-		static CalculatingTools()
-		{
-			_random = new Random();
-		}
 		public static double GetAverageLinkCount(Graph graph) =>
 			(double)graph.Edges.Count / graph.Vertices.Count * 2;
 
@@ -63,22 +58,24 @@ namespace GraphSdk
 
 		}
 
-		public static double GetVertexPercolation(Graph graph, double probability)
+		public static double GetVertexPercolation(Graph graph, double probability, int tryCount = 10)
 		{
-			var active = graph.Vertices.ToDictionary(vertex => vertex.Id, vertex => _random.NextDouble() >= probability);
+			var random = new Random();
+			var active = graph.Vertices.ToDictionary(vertex => vertex.Id, vertex => random.NextDouble() >= probability);
 			var list = graph.Vertices.Where(vertex => active[vertex.Id]).ToList();
 			var counter = 0;
-			var tryCount = 10;
-			for (int i = 0; i < tryCount; i++)
+			for (var i = 0; i < tryCount; i++)
 			{
-				if (!list.Any())
+				if (list.Count() < 2)
 					continue;
-				var a = list[_random.Next(list.Count)];
-				list.Remove(a);
+				var a = list[random.Next(list.Count)];
 
-				if (!list.Any())
-					continue;
-				var b = list[_random.Next(list.Count)];
+				Vertex b;
+				do
+				{
+					b = list[random.Next(list.Count)];
+				} while (a.Equals(b));
+
 
 				if (graph.CheckPath(a, b, active))
 					counter++;
@@ -87,17 +84,17 @@ namespace GraphSdk
 			return (double)counter / tryCount;
 		}
 
-		public static double GetEdgePercolation(Graph graph, double probability)
+		public static double GetEdgePercolation(Graph graph, double probability, int tryCount = 10)
 		{
+			var random = new Random();
 			var counter = 0;
-			var tryCount = 10;
 
 			for (int i = 0; i < tryCount; i++)
 			{
-				var active = graph.Edges.ToDictionary(edge => edge, vertex => _random.NextDouble() >= probability);
+				var active = graph.Edges.ToDictionary(edge => edge, vertex => random.NextDouble() >= probability);
 
-				var a = graph.Vertices[_random.Next(graph.Vertices.Count)];
-				var b = graph.Vertices[_random.Next(graph.Vertices.Count)];
+				var a = graph.Vertices[random.Next(graph.Vertices.Count)];
+				var b = graph.Vertices[random.Next(graph.Vertices.Count)];
 
 				if (graph.CheckPath(a, b, active))
 					counter++;
