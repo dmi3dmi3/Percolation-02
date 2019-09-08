@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace GraphSdk.DataModels
@@ -23,12 +24,10 @@ namespace GraphSdk.DataModels
 			Edges.Add(new Edge(a, b));
 		}
 
-		public void AddEdge(int idA, int idB)
+		public void AddEdge(long idA, long idB)
 		{
 			var a = Vertices.First(vertex => vertex.Id == idA);
 			var b = Vertices.First(vertex => vertex.Id == idB);
-			a.AddConnected(b);
-			b.AddConnected(a);
 			AddEdge(a, b);
 		}
 
@@ -42,9 +41,10 @@ namespace GraphSdk.DataModels
 			Edges.Remove(edge);
 		}
 
-		public Dictionary<int, int> GetShortestPaths(int start)
+		public Dictionary<long, long> GetShortestPaths(long start)
 		{
-			var distance = Vertices.ToDictionary(vertex => vertex.Id, vertex => int.MaxValue);
+			const long max = long.MaxValue - 1;
+			var distance = Vertices.ToDictionary(vertex => vertex.Id, vertex => max);
 			var used = Vertices.ToDictionary(vertex => vertex.Id, vertex => false);
 			distance[start] = 0;
 			foreach (var i in Vertices)
@@ -53,13 +53,17 @@ namespace GraphSdk.DataModels
 				foreach (var j in Vertices)
 					if (!used[j.Id] && (v == null || distance[j.Id] < distance[v.Id]))
 						v = j;
-				if (distance[v.Id] == int.MaxValue)
+				if (distance[v.Id] == max)
 					break;
 				used[v.Id] = true;
 				foreach (var connected in v.ConnectedVertices)
 					if (distance[v.Id] + 1 < distance[connected.Id])
 						distance[connected.Id] = distance[v.Id] + 1;
 			}
+
+			distance = distance
+				.Where(_ => _.Value != max)
+				.ToDictionary(_ => _.Key, _ => _.Value);
 
 			return distance;
 		}

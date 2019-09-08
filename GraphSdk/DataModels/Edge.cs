@@ -15,13 +15,13 @@ namespace GraphSdk.DataModels
 		}
 
 		public override bool Equals(object obj) =>
-			obj is Edge edge 
-			&& (A.Equals(edge.A) && B.Equals(edge.B) 
-			    || B.Equals(edge.A) && A.Equals(edge.B));
+			obj is Edge edge
+			&& (A.Equals(edge.A) && B.Equals(edge.B)
+				|| B.Equals(edge.A) && A.Equals(edge.B));
 
 		public override int GetHashCode() => (A.GetHashCode() + B.GetHashCode()).GetHashCode();
 
-		public bool Contains(Vertex v) => 
+		public bool Contains(Vertex v) =>
 			v.Equals(A) || v.Equals(B);
 	}
 }

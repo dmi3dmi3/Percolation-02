@@ -20,25 +20,19 @@ namespace CubicLattice
 			for (var i = 0; i < inRow; i++)
 				for (var j = 0; j < inRow; j++)
 					matrix[i, j] = new Vertex(id++, new Point(i * distance, distance * j));
-			for (int i = 0; i < inRow; i++)
-			{
-				for (int j = 0; j < inRow; j++)
+			for (var i = 0; i < inRow; i++)
+				for (var j = 0; j < inRow; j++)
 				{
-					if (j != 0) 
+					if (j != 0)
 						graph.AddEdge(matrix[i, j], matrix[i, j - 1]);
 
-					if (i != 0) 
+					if (i != 0)
 						graph.AddEdge(matrix[i, j], matrix[i - 1, j]);
 				}
-			}
 
-			for (int i = 0; i < inRow; i++)
-			{
-				for (int j = 0; j < inRow; j++)
-				{
+			for (var i = 0; i < inRow; i++)
+				for (var j = 0; j < inRow; j++)
 					graph.Vertices.Add(matrix[i, j]);
-				}
-			}
 
 			return graph;
 		}

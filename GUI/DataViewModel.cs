@@ -178,18 +178,18 @@ namespace GUI
 			}
 		}
 
-		public double AverageShortestPath
+		public decimal AverageShortestPath
 		{
 			get => _averageShortestPath;
 			set
 			{
-				if (Math.Abs(value - _averageShortestPath) < 0.001) return;
+				if (Math.Abs(value - _averageShortestPath) < (decimal)0.001) return;
 				_averageShortestPath = value;
 				OnPropertyChanged();
 			}
 		}
 
-		public double ClusteringRatio
+		public decimal ClusteringRatio
 		{
 			get => _clusteringRatio;
 			set
@@ -253,14 +253,17 @@ namespace GUI
 
 		#region CommandsForBinding
 
-		public ICommand GraphGenerateCommand => _graphGenerateCommand ?? (_graphGenerateCommand
-												   = new CommandWrapper(OnGraphGenerate));
+		public ICommand GraphGenerateCommand => 
+			_graphGenerateCommand ?? (_graphGenerateCommand = new CommandWrapper(OnGraphGenerate));
 
-		public ICommand CountPercolationCommand => _countPercolationCommand ?? (_countPercolationCommand
-													   = new CommandWrapper(OnPercolationCount));
+		public ICommand CountPercolationCommand => 
+			_countPercolationCommand ?? (_countPercolationCommand = new CommandWrapper(OnPercolationCount));
 
-		public ICommand CancelCommand => _cancelCommand ?? (_cancelCommand
-											 = new CommandWrapper(Cancel));
+		public ICommand CancelCommand =>
+			_cancelCommand ?? (_cancelCommand = new CommandWrapper(Cancel));
+
+		public ICommand LoadOsmCommand =>
+			_loadOsmCommand ?? (_loadOsmCommand = new CommandWrapper(LoadOsm));
 
 		#endregion
 
@@ -350,9 +353,11 @@ namespace GUI
 				OnPropertyChanged();
 			}
 		}
+
 		protected virtual void OnPercolationCount(object obj = null) { }
 		protected virtual void OnGraphGenerate(object obj = null) { }
 		protected virtual void Cancel(object obj = null) { }
+		protected virtual void LoadOsm(object obj = null) { }
 
 		#region Constants
 
@@ -432,8 +437,8 @@ namespace GUI
 		private int _tryCount;
 		private double _averageLinkCount;
 		private double _percolationThreshold;
-		private double _averageShortestPath;
-		private double _clusteringRatio;
+		private decimal _averageShortestPath;
+		private decimal _clusteringRatio;
 		private ObservableCollection<Shape> _canvasItemsSource;
 		private GraphType _graphType;
 		private IList<DataPoint> _percolationPoints;
@@ -443,6 +448,7 @@ namespace GUI
 		private bool _replaceConnections;
 		private bool _isRunning;
 		private string _status;
+		private ICommand _loadOsmCommand;
 
 		#endregion
 

@@ -3,7 +3,9 @@ using OxyPlot;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
+using Microsoft.Win32;
 
 namespace GUI
 {
@@ -22,6 +24,11 @@ namespace GUI
 				_backgroundWorker.ReportProgress(0, $"Идет {_currentExperiment + 1}/{ExperimentCount} " +
 												   $"эксперимент: {Math.Round(_currentPercent++ / ProbabilityCount * 100, 1)}%");
 			};
+			MainModel.AspProcess += (sender, d) =>
+			{
+				_backgroundWorker.ReportProgress(0, $"Идет {_currentExperiment + 1}/{ExperimentCount} " +
+													$"эксперимент (мин. крат. путь): {Math.Round(d, 1)}%");
+			};
 		}
 
 
@@ -29,13 +36,19 @@ namespace GUI
 		protected override void OnGraphGenerate(object obj = null)
 		{
 			IsRunning = true;
-			_backgroundWorker.RunWorkerAsync(false);
+			_backgroundWorker.RunWorkerAsync(new WorkerArgs { IsDrawOnly = true });
 		}
 
 		protected override void OnPercolationCount(object obj = null)
 		{
 			IsRunning = true;
-			_backgroundWorker.RunWorkerAsync(true);
+			_backgroundWorker.RunWorkerAsync(new WorkerArgs { IsDrawOnly = false });
+		}
+
+		protected override void LoadOsm(object obj = null)
+		{
+			IsRunning = true;
+			_backgroundWorker.RunWorkerAsync(new WorkerArgs { IsOsm = true });
 		}
 
 		protected override void Cancel(object obj = null)
@@ -48,43 +61,70 @@ namespace GUI
 
 		private void DoWork(DoWorkEventArgs args)
 		{
+			var workerArgs = (WorkerArgs)args.Argument;
 			var size = 650;
 
-			_backgroundWorker.ReportProgress(0, "Идет генерация графа");
-			MainModel.GenerateGraph(
-				VertexCount, ConnectionPercent,
-				size, Planarity == PlanarityType.Planar,
-				NonPlanarConnectionPercent, GraphType,
-				ReplaceConnections);
-			Vertices = MainModel.GetVertices();
-			BlueConnections = MainModel.GetPlanarEdges();
-			GreenConnections = MainModel.GetNonPlanarEdges();
-			_backgroundWorker.ReportProgress(0, "Граф построен");
-			if (!(bool)args.Argument)
-				return;
+			if (workerArgs.IsOsm)
+			{
+				_backgroundWorker.ReportProgress(0, "Идет загрузка графа");
+				var openFileDialog = new OpenFileDialog { DefaultExt = "*.osm|*.osm" };
+				openFileDialog.ShowDialog();
+				var fileName = openFileDialog.FileName;
+				if (string.IsNullOrWhiteSpace(fileName))
+					return;
+				MainModel.LoadGraphFromOsm(fileName);
+				_backgroundWorker.ReportProgress(0, "Граф загружен");
+			}
+			else
+			{
+				_backgroundWorker.ReportProgress(0, "Идет генерация графа");
+				MainModel.GenerateGraph(
+					VertexCount, ConnectionPercent,
+					size, Planarity == PlanarityType.Planar,
+					NonPlanarConnectionPercent, GraphType,
+					ReplaceConnections);
+				Vertices = MainModel.GetVertices();
+				BlueConnections = MainModel.GetPlanarEdges();
+				GreenConnections = MainModel.GetNonPlanarEdges();
+				_backgroundWorker.ReportProgress(0, "Граф построен");
+				if (workerArgs.IsDrawOnly)
+					return;
+			}
+
 			var avl = new List<double>();
 			var percolation = new List<double>();
-			var asp = new List<double>();
-			var clustering = new List<double>();
+			var asp = new List<decimal>();
+			var clustering = new List<decimal>();
 			for (_currentExperiment = 0; _currentExperiment < ExperimentCount; _currentExperiment++)
 			{
+				_backgroundWorker.ReportProgress(0, $"Идет {_currentExperiment + 1}/{ExperimentCount} эксперимент.\r\nПодсчет характеристик.");
+
+				if (!workerArgs.IsOsm || _currentExperiment == 0)
+				{
+					_backgroundWorker.ReportProgress(0, $"Идет {_currentExperiment + 1}/{ExperimentCount} эксперимент.\r\nСреднее количество связей на узел.");
+					avl.Add(MainModel.GetAverageLinkCount());
+					_backgroundWorker.ReportProgress(0, $"Идет {_currentExperiment + 1}/{ExperimentCount} эксперимент.\r\nСредний минимальный путь.");
+					asp.Add(MainModel.GetAverageShortestPath());
+					_backgroundWorker.ReportProgress(0, $"Идет {_currentExperiment + 1}/{ExperimentCount} эксперимент.\r\nКоэффициент кластеризации.");
+					clustering.Add(MainModel.GetClusteringRatio());
+				}
+
 				_currentPercent = 0;
 				if (_backgroundWorker.CancellationPending)
 				{
 					args.Cancel = true;
 					return;
 				}
+
 				_backgroundWorker.ReportProgress(0, $"Идет {_currentExperiment + 1}/{ExperimentCount} эксперимент");
-				avl.Add(MainModel.GetAverageLinkCount());
 				var t = MainModel.GetPercolationThreshold(Experiment, 1d / ProbabilityCount, TryCount);
 				if (percolation.Any())
 					for (var j = 0; j < t.Count; j++)
 						percolation[j] += t[j];
 				else
 					percolation = t;
-				asp.Add(MainModel.GetAverageShortestPath());
-				clustering.Add(MainModel.GetClusteringRatio());
 			}
+
 			for (var i = 0; i < percolation.Count; i++)
 				percolation[i] = (percolation[i] / ExperimentCount);
 

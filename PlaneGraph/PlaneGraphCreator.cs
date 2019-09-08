@@ -69,87 +69,75 @@ namespace PlaneGraph
 			hull.AddItem(new TrisEdge(tris, tris[2], tris[0]));
 
 			var seekStart = hull.Last;
-			CircularItem<TrisEdge> visiblePoint = null;
-			Tris returnLinkTris = null;
 
 			for (var i = 3; i < vertex.Length; i++)
 			{
 				var nextPoint = vertex[i];
 
+				CircularItem<TrisEdge> visiblePoint = null;
 				if (seekStart.Value.EdgeVisibleFrom(nextPoint.Position))
 					visiblePoint = seekStart;
 				else
 					visiblePoint = hull.FindNext(seekStart,
 						t => t.Value.EdgeVisibleFrom(nextPoint.Position));
 
-				var addNewPointInHull = false;
+				if (visiblePoint == null) 
+					continue;
+				var notVisibleLeft = hull.FindPrevious(visiblePoint,
+					t => !t.Value.EdgeVisibleFrom(nextPoint.Position));
 
-				if (visiblePoint != null)
+				var notVisibleRight = hull.FindNext(visiblePoint,
+					t => !t.Value.EdgeVisibleFrom(nextPoint.Position));
+
+				if (notVisibleLeft == null || notVisibleRight == null)
+					continue;
+				var visibleLeft = notVisibleLeft.Next;
+				var edge = visibleLeft.Value;
+				var hullItem = visibleLeft;
+
+				Tris firstEdgeTris = null;
+				Tris lastEdgeTris = null;
+
+				while (hullItem != notVisibleRight)
 				{
-					var notVisibleLeft = hull.FindPrevious(visiblePoint,
-						t => !t.Value.EdgeVisibleFrom(nextPoint.Position));
+					var nextTris = new Tris(edge.A, nextPoint, edge.B);
 
-					var notVisibleRight = hull.FindNext(visiblePoint,
-						t => !t.Value.EdgeVisibleFrom(nextPoint.Position));
+					nextTris[0].Trises.Add(nextTris);
+					nextTris[1].Trises.Add(nextTris);
+					nextTris[2].Trises.Add(nextTris);
+					resultTriangles.Add(nextTris);
 
-					if (notVisibleLeft != null && notVisibleRight != null)
-					{
-						var visibleLeft = notVisibleLeft.Next;
-						var edge = visibleLeft.Value;
-						var hullItem = visibleLeft;
-
-						Tris firstEdgeTris = null;
-						Tris lastEdgeTris = null;
-
-						while (hullItem != notVisibleRight)
-						{
-							var nextTris = new Tris(edge.A, nextPoint, edge.B);
-
-							nextTris[0].Trises.Add(nextTris);
-							nextTris[1].Trises.Add(nextTris);
-							nextTris[2].Trises.Add(nextTris);
-							resultTriangles.Add(nextTris);
-
-							// разворачиваем треугольники, чтобы удовлетворяли критерию Делоне
-							if (FlipIfNeeded(edge.tris, nextTris, nextPoint, out returnLinkTris))
-								if (firstEdgeTris == null)
-									firstEdgeTris = returnLinkTris;
+					// разворачиваем треугольники, чтобы удовлетворяли критерию Делоне
+					if (FlipIfNeeded(edge.tris, nextTris, nextPoint, out var returnLinkTris))
+						if (firstEdgeTris == null)
+							firstEdgeTris = returnLinkTris;
 
 
-							if (firstEdgeTris == null) firstEdgeTris = nextTris;
+					if (firstEdgeTris == null) firstEdgeTris = nextTris;
 
-							lastEdgeTris = nextTris;
+					lastEdgeTris = nextTris;
 
-							hullItem = hullItem.Next;
-							edge = hullItem.Value;
-							addNewPointInHull = true;
-						}
-
-						// закрываем дырку
-						hull.LinkTwoItem(notVisibleLeft, notVisibleRight);
-						seekStart = hull.AddItemAfter(notVisibleLeft);
-						seekStart.Value = new TrisEdge(firstEdgeTris, notVisibleLeft.Value.B, nextPoint);
-
-
-						seekStart = hull.AddItemAfter(seekStart);
-						seekStart.Value = new TrisEdge(lastEdgeTris, nextPoint, notVisibleRight.Value.A);
-					}
+					hullItem = hullItem.Next;
+					edge = hullItem.Value;
 				}
 
-				if (!addNewPointInHull) visiblePoint = null;
+				// закрываем дырку
+				hull.LinkTwoItem(notVisibleLeft, notVisibleRight);
+				seekStart = hull.AddItemAfter(notVisibleLeft);
+				seekStart.Value = new TrisEdge(firstEdgeTris, notVisibleLeft.Value.B, nextPoint);
 
+
+				seekStart = hull.AddItemAfter(seekStart);
+				seekStart.Value = new TrisEdge(lastEdgeTris, nextPoint, notVisibleRight.Value.A);
 			}
 
 			// формируем связи на основе триангуляции
-			var createEdges = 0;
 			graph.Edges = new List<Edge>(resultTriangles.Count * 2);
 			foreach (var tr in resultTriangles)
 			{
 				graph.AddEdge(tr[0].Original, tr[1].Original);
 				graph.AddEdge(tr[1].Original, tr[2].Original);
 				graph.AddEdge(tr[2].Original, tr[0].Original);
-
-				createEdges++;
 			}
 
 
@@ -160,7 +148,6 @@ namespace PlaneGraph
 			var rnd = new Random();
 
 			var testEdges = new List<Edge>(graph.Edges);
-			var beginEdgesCount = testEdges.Count;
 
 			while (testEdges.Count > 0 && needEdges < graph.Edges.Count)
 			{
@@ -196,11 +183,9 @@ namespace PlaneGraph
 			if (needAnotherCut)
 			{
 				// запоминаем треугольники, "ниже"
-				Tris trA = null;
-				Tris trB = null;
 
-				trA = downPoint.FindAnotherTrisWith(trisA, trisA[indexANext], downPoint);
-				trB = downPoint.FindAnotherTrisWith(trisA, trisA[indexAPrev], downPoint);
+				var trA = downPoint.FindAnotherTrisWith(trisA, trisA[indexANext], downPoint);
+				var trB = downPoint.FindAnotherTrisWith(trisA, trisA[indexAPrev], downPoint);
 
 				// рубим по другому образуемый этими треугольниками четырехугольник.           
 				trisA[indexAPrev].Trises.Remove(trisA);
@@ -218,7 +203,7 @@ namespace PlaneGraph
 
 				if (trA != null)
 					if (FlipIfNeeded(trA, trisA, newPoint, out tmp))
-						rt = trisA = tmp;
+						rt = tmp;
 
 				if (trB != null) FlipIfNeeded(trB, trisB, newPoint, out tmp);
 				return true;

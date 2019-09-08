@@ -34,7 +34,7 @@ namespace GraphSdk
 			return distance[b.Id] != int.MaxValue;
 		}
 
-		private static bool CheckPath(this Graph graph, Vertex a, Vertex b, Dictionary<int, bool> active)
+		private static bool CheckPath(this Graph graph, Vertex a, Vertex b, Dictionary<long, bool> active)
 		{
 			var distance = graph.Vertices.ToDictionary(vertex => vertex.Id, vertex => int.MaxValue);
 			var used = graph.Vertices.ToDictionary(vertex => vertex.Id, vertex => false);

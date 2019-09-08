@@ -113,19 +113,17 @@
 			        Margin="5" Width="100" HorizontalAlignment="Left"
 			        Command="{Binding CountPercolationCommand}" IsEnabled="{Binding IsNotRunning}"/>
 				</StackPanel>
-				<Button Name="CancelButton" Content="Отменить" 
-			        Margin="5" Width="100" HorizontalAlignment="Left"
-			        Command="{Binding CancelCommand}" IsEnabled="{Binding IsRunning}"/>
+				<StackPanel Orientation="Horizontal">
+					<Button Name="CancelButton" Content="Отменить"
+					        Margin="5" Width="100" HorizontalAlignment="Left"
+					        Command="{Binding CancelCommand}" IsEnabled="{Binding IsRunning}"/>
+					<Button Name="OsmButton" Content="Загрузить OSM"
+					        Margin="5" Width="100" HorizontalAlignment="Left"
+					        Command="{Binding LoadOsmCommand}" IsEnabled="{Binding IsNotRunning}"/>
+				</StackPanel>
 			</StackPanel>
 			<TextBlock Text="{Binding Status}" Margin="0, 20"/>
 		</StackPanel>
-		<!--<ItemsControl Grid.Column="0" Grid.Row="3" ItemsSource="{Binding PercolationCanvasItemsSource}" Margin="5">
-			<ItemsControl.ItemsPanel>
-				<ItemsPanelTemplate>
-					<Canvas />
-				</ItemsPanelTemplate>
-			</ItemsControl.ItemsPanel>
-		</ItemsControl>-->
 		<oxy:Plot Grid.Column="0" Grid.Row="3" Title="Перколяция" Height="240" Width="420" VerticalAlignment="Top"
 		          LegendFontSize="9" LegendPosition="LeftTop">
 			<oxy:Plot.Axes>
@@ -182,7 +180,5 @@
 				</ItemsControl.ItemsPanel>
 			</ItemsControl>
 		</StackPanel>
-
 	</Grid>
-
 </Window>

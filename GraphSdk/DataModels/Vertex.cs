@@ -8,7 +8,7 @@ namespace GraphSdk.DataModels
 	public class Vertex
 	{
 		public List<Vertex> ConnectedVertices { get; set; }
-		public int Id { get; }
+		public long Id { get; }
 		public Point Position { get; set; }
 		public double X => Position.X;
 		public double Y => Position.Y;
@@ -19,6 +19,13 @@ namespace GraphSdk.DataModels
 		public void RemoveConnected(Vertex v) => ConnectedVertices.Remove(v);
 
 		public Vertex(int id, Point position, List<Vertex> connectedVertices = null)
+		{
+			Id = id;
+			Position = position;
+			ConnectedVertices = connectedVertices ?? new List<Vertex>();
+		}
+
+		public Vertex(long id, Point position, List<Vertex> connectedVertices = null)
 		{
 			Id = id;
 			Position = position;

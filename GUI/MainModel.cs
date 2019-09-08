@@ -7,63 +7,71 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using OsmLoader;
 
 
 namespace GUI
 {
 	public static class MainModel
 	{
-		private static Graph _graph;
-		private static List<(Point, Point)> _nonPlanarEdges;
-		public static event EventHandler<double> PercolationProcess; 
+		private static Graph s_graph;
+		private static List<(Point, Point)> s_nonPlanarEdges;
+		public static event EventHandler<double> PercolationProcess;
+		public static event EventHandler<double> AspProcess;
 
 		public static void GenerateGraph(int vertexCount, int edgePercent, int size, bool isPlanar, int nonPlanarPercent, GraphType graphType, bool replaceConnections)
 		{
 			switch (graphType)
 			{
 				case GraphType.PlaneGraph:
-					_graph = new PlaneGraphCreator().GenerateGraph(vertexCount, edgePercent, size);
+					s_graph = new PlaneGraphCreator().GenerateGraph(vertexCount, edgePercent, size);
 					break;
 				case GraphType.CubicLattice:
-					_graph = new CubicLatticeCreator().GenerateGraph(vertexCount, edgePercent, size);
+					s_graph = new CubicLatticeCreator().GenerateGraph(vertexCount, edgePercent, size);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(graphType), graphType, null);
 			}
-			_nonPlanarEdges = !isPlanar
-				? NonPlanarTools.AddNonPlanarEdges(_graph, nonPlanarPercent, replaceConnections).Select(edge => (edge.A.Position, edge.B.Position)).ToList()
+			s_nonPlanarEdges = !isPlanar
+				? NonPlanarTools.AddNonPlanarEdges(s_graph, nonPlanarPercent, replaceConnections).Select(edge => (edge.A.Position, edge.B.Position)).ToList()
 				: null;
 		}
 
+		public static void LoadGraphFromOsm(string filePath)
+		{
+			s_graph = new OsmGraphLoader(filePath).GenerateGraph();
+		}
+
 		public static List<Point> GetVertices() =>
-			_graph.Vertices.Select(vertex => vertex.Position).ToList();
+			s_graph.Vertices.Select(vertex => vertex.Position).ToList();
 
 		public static List<(Point, Point)> GetPlanarEdges() =>
-			_graph.Edges.Select(edge => (edge.A.Position, edge.B.Position)).ToList();
+			s_graph.Edges.Select(edge => (edge.A.Position, edge.B.Position)).ToList();
 
 		public static List<(Point, Point)> GetNonPlanarEdges() =>
-			_nonPlanarEdges;
+			s_nonPlanarEdges;
 
 		public static double GetAverageLinkCount() =>
-			CalculatingTools.GetAverageLinkCount(_graph);
+			CalculatingTools.GetAverageLinkCount(s_graph);
 
 		public static List<double> GetPercolationThreshold(ExperimentType experimentType, double probabilityStep = 0.001, int tryCount = 10)
 		{
-			var steps = new List<double>((int)Math.Round(1/probabilityStep, 0));
+			var steps = new List<double>((int)Math.Round(1 / probabilityStep, 0));
 			var anotherSteps = new ConcurrentDictionary<double, double>();
 			var maxVal = 1 + probabilityStep / 10;
 			var probabilities = new List<double>();
 			switch (experimentType)
 			{
 				case ExperimentType.Nodes:
-					for (double i = 0; i <= maxVal; i += probabilityStep) 
+					for (double i = 0; i <= maxVal; i += probabilityStep)
 						probabilities.Add(i);
 					Parallel.ForEach(probabilities, d =>
 					{
 						PercolationProcess?.Invoke(null, Math.Round(d * 100, 1));
-						var t = CalculatingTools.GetVertexPercolation(_graph, d, tryCount);
+						var t = CalculatingTools.GetVertexPercolation(s_graph, d, tryCount);
 						anotherSteps.AddOrUpdate(d, t, (d1, d2) => d2);
 					});
 					break;
@@ -73,7 +81,7 @@ namespace GUI
 					Parallel.ForEach(probabilities, d =>
 					{
 						PercolationProcess?.Invoke(null, Math.Round(d * 100, 1));
-						var t = CalculatingTools.GetEdgePercolation(_graph, d, tryCount);
+						var t = CalculatingTools.GetEdgePercolation(s_graph, d, tryCount);
 						anotherSteps.AddOrUpdate(d, t, (d1, d2) => d2);
 					});
 					break;
@@ -105,29 +113,41 @@ namespace GUI
 			return Math.Sqrt(squares.Sum() / values.Length);
 		}
 
-		public static double GetAverageShortestPath()
+		public static decimal GetAverageShortestPath()
 		{
-			var res = 0d;
-			foreach (var vertex in _graph.Vertices)
-				res += _graph.GetShortestPaths(vertex.Id).Values.Where(i => i != int.MaxValue).Sum();
-			return res / _graph.Vertices.Count / _graph.Vertices.Count;
+			var count = s_graph.Vertices.Count;
+			var res = new long[count];
+			var done = 0;
+			Parallel.For(0, s_graph.Vertices.Count, i =>
+			{
+				long innerRes = 0;
+				foreach (var l in s_graph.GetShortestPaths(s_graph.Vertices[i].Id).Values)
+					innerRes += l;
+				res[i] = innerRes;
+				Interlocked.Increment(ref done);
+				AspProcess?.Invoke(null, (double)done / count * 100);
+			});
+			return res.Select(l => l / (decimal)s_graph.Vertices.Count / s_graph.Vertices.Count).Sum();
 		}
 
-		public static double GetClusteringRatio()
+		public static decimal GetClusteringRatio()
 		{
-			var clustering = 0d;
-			foreach (var current in _graph.Vertices)
+			var clustering = Enumerable.Range(0, s_graph.Vertices.Count).Select(i => (decimal)0).ToArray();
+			Parallel.For(0, s_graph.Vertices.Count, i =>
 			{
-				if (current.ConnectedVertices.Count <= 1) 
-					continue;
-				var connectedNears = 0d;
+				var current = s_graph.Vertices[i];
+				if (current.ConnectedVertices.Count <= 1)
+					return;
+				decimal connectedNears = 0;
 				foreach (var connected in current.ConnectedVertices)
 					connectedNears += connected.ConnectedVertices.Intersect(current.ConnectedVertices).Count();
 
-				clustering += connectedNears / (current.ConnectedVertices.Count * (current.ConnectedVertices.Count - 1));
-			}
+				clustering[i] = connectedNears /
+							  (current.ConnectedVertices.Count * (current.ConnectedVertices.Count - 1));
 
-			return clustering / _graph.Vertices.Count;
+			});
+
+			return clustering.Select(_ => _ / s_graph.Vertices.Count).Sum();
 		}
 	}
 }

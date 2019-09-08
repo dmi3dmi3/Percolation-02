@@ -24,3 +24,5 @@ PlaneGraph/obj/
 PercolationDiplom\.sln\.DotSettings
 
 PercolationDiplom\.sln\.DotSettings\.user
+/OsmLoader/bin/Debug
+/OsmLoader/obj/Debug

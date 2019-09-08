@@ -7,11 +7,11 @@ namespace GraphSdk
 {
 	public static class NonPlanarTools
 	{
-		private static Random _random { get; }
+		private static Random Random { get; }
 
 		static NonPlanarTools()
 		{
-			_random = new Random();
+			Random = new Random();
 		}
 
 		public static List<Edge> AddNonPlanarEdges(Graph graph, int NonPlanarPercent, bool replaceConnections)
@@ -97,19 +97,19 @@ namespace GraphSdk
 				var toAdd = addPerVertex;
 				do
 				{
-					var r = _random.NextDouble();
+					var r = Random.NextDouble();
 					if (toAdd >= 1 || r <= toAdd)
 					{
 						while (true)
 						{
 							var startFacet = facets.FindIndex(list => list.Exists(_ => _.Id == vertex.Id));
-							var endVertex = graph.Vertices[_random.Next(graph.Vertices.Count)];
+							var endVertex = graph.Vertices[Random.Next(graph.Vertices.Count)];
 							var endFacet = facets.FindIndex(list => list.Exists(_ => _.Id == endVertex.Id));
-							if (probabilities[startFacet][endFacet] >= _random.NextDouble())
+							if (probabilities[startFacet][endFacet] >= Random.NextDouble())
 							{
 								if (replaceConnections && vertex.ConnectedVertices.Any())
 									graph.RemoveEdge(vertex,
-										vertex.ConnectedVertices[_random.Next(vertex.ConnectedVertices.Count)]);
+										vertex.ConnectedVertices[Random.Next(vertex.ConnectedVertices.Count)]);
 
 								graph.AddEdge(vertex, endVertex);
 								nonPlanarEdges.Add(new Edge(vertex, endVertex));
