@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29123.88
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.852
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GUI", "GUI\GUI.csproj", "{CAED4C1F-AA82-4720-93F3-85775F1F1446}"
 EndProject
@@ -14,6 +14,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CubicLattice", "CubicLattice\CubicLattice.csproj", "{CB1B9964-2021-4D12-B1CD-809308C3EBA9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OsmLoader", "OsmLoader\OsmLoader.csproj", "{427B2464-0CA9-4692-B570-63D3220A5E22}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{4ADFEF70-AFA5-4843-9010-A7603C7064D0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OsmAspGetter", "OsmAspGetter\OsmAspGetter.csproj", "{590C417B-4E4D-431D-A651-B57200C40351}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +45,10 @@ Global
 		{427B2464-0CA9-4692-B570-63D3220A5E22}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{427B2464-0CA9-4692-B570-63D3220A5E22}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{427B2464-0CA9-4692-B570-63D3220A5E22}.Release|Any CPU.Build.0 = Release|Any CPU
+		{590C417B-4E4D-431D-A651-B57200C40351}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{590C417B-4E4D-431D-A651-B57200C40351}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{590C417B-4E4D-431D-A651-B57200C40351}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{590C417B-4E4D-431D-A651-B57200C40351}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -49,6 +57,7 @@ Global
 		{3616B03D-B240-4D52-B392-20702B11090B} = {211997B3-A75A-4D01-ACCF-9EF932FC2B3F}
 		{CB1B9964-2021-4D12-B1CD-809308C3EBA9} = {211997B3-A75A-4D01-ACCF-9EF932FC2B3F}
 		{427B2464-0CA9-4692-B570-63D3220A5E22} = {211997B3-A75A-4D01-ACCF-9EF932FC2B3F}
+		{590C417B-4E4D-431D-A651-B57200C40351} = {4ADFEF70-AFA5-4843-9010-A7603C7064D0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C53240A4-CAF3-4DA3-8899-1E057C1A73F3}
