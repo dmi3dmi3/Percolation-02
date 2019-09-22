@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Windows;
 using Microsoft.Win32;
 
 namespace GUI
@@ -74,7 +75,10 @@ namespace GUI
 					return;
 				MainModel.LoadGraphFromOsm(fileName);
 				_backgroundWorker.ReportProgress(0, "Граф загружен");
-			}
+                Vertices = MainModel.GetVertices();
+                BlueConnections = MainModel.GetPlanarEdges();
+                return;
+            }
 			else
 			{
 				_backgroundWorker.ReportProgress(0, "Идет генерация графа");

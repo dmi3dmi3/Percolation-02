@@ -3,6 +3,7 @@ using GraphSdk.DataModels;
 using OsmSharp;
 using OsmSharp.Streams;
 using System.IO;
+using System.IO.Packaging;
 using System.Linq;
 using System.Windows;
 
@@ -19,7 +20,7 @@ namespace OsmLoader
 		}
 
 
-		public override Graph GenerateGraph(int vertexCount = 0, int edgePercent = 0, int size = 0)
+		public override Graph GenerateGraph(int vertexCount = 0, int edgePercent = 0, int size = 500)
 		{
 			var graph = new Graph();
 			using (var fs = File.OpenRead(_filePath))
@@ -27,8 +28,9 @@ namespace OsmLoader
 				var source = new XmlOsmStreamSource(fs);
 				var nodes = source
 					.Where(_ => _.Type == OsmGeoType.Node)
-					.Where(_ => _.Id.HasValue)
-					.Select(_ => new Vertex(_.Id.Value, new Point(0, 0)))
+                    .Cast<Node>()
+					.Where(_ => _.Id.HasValue && _.Longitude.HasValue && _.Latitude.HasValue)
+					.Select(_ => new Vertex(_.Id.Value, new Point(_.Longitude.Value, _.Latitude.Value)))
 					.ToList();
 				graph.Vertices = nodes;
 
@@ -37,7 +39,8 @@ namespace OsmLoader
 					.Where(osmGeo => osmGeo.Type == OsmGeoType.Way)
 					.Cast<Way>()
 					.Where(_ => _.Tags == null 
-					            || !_.Tags.Contains("highway", "footway") //Пешеходные дорожки, тротуары
+					            || _.Tags.ContainsKey("highway")
+                                && !_.Tags.Contains("highway", "footway") //Пешеходные дорожки, тротуары
 					            && !_.Tags.Contains("highway", "bridleway") //Дорожки для верховой езды
 					            && !_.Tags.Contains("highway", "steps") //Лестницы, лестничные пролёты.
 					            && !_.Tags.Contains("highway", "path") //Тропа (чаще всего, стихийная) использующаяся пешеходами, либо транспортом, кроме четырехколесного 
@@ -61,7 +64,21 @@ namespace OsmLoader
 					i++;
 			}
 
-			return graph;
+            var minVec = new Vector(
+                graph.Vertices.Select(_ => _.X).Min(), 
+                graph.Vertices.Select(_ => _.Y).Min());
+            graph.Vertices.ForEach(_ => _.Position = Point.Add(_.Position, -minVec));
+
+            var maxX = graph.Vertices.Select(_ => _.X).Max();
+            var maxY = graph.Vertices.Select(_ => _.Y).Max();
+
+            var XKoef = size / maxX;
+            var YKoef = size / maxY;
+
+            graph.Vertices.ForEach(_ => _.Position = new Point(_.X * XKoef, _.Y * YKoef));
+
+
+            return graph;
 		}
 	}
 }

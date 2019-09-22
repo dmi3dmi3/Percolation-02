@@ -361,7 +361,7 @@ namespace GUI
 
 		#region Constants
 
-		private const int VertexRadius = 3;
+		private const int VertexRadius = 1;
 		private const int VertexDiameter = VertexRadius * 2;
 
 		#endregion
