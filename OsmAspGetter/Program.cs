@@ -30,7 +30,7 @@ namespace OsmAspGetter
             Console.WriteLine("Идет форматирование графа...");
             var vertexDictionary = new Dictionary<long, int>(graph.Vertices.Count);
             var newId = 0;
-            foreach (var vertex in graph.Vertices)
+            foreach (var vertex in graph.Vertices.Values)
                 if (!vertexDictionary.ContainsKey(vertex.Id))
                     vertexDictionary.Add(vertex.Id, newId++);
 

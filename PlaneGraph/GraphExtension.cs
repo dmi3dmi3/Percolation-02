@@ -8,7 +8,7 @@ namespace PlaneGraph
 	{
 		public static bool HasWayBetweenWithoutEdge(this Graph graph, Vertex a, Vertex b)
 		{
-			var wave = graph.Vertices.ToDictionary(vertex => vertex.Id, vertex => 0);
+			var wave = graph.Vertices.ToDictionary(vertex => vertex.Value.Id, vertex => 0);
 
 
 			var buffer = new List<Vertex> {a};

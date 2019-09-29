@@ -20,7 +20,7 @@ namespace GraphSdk
 
 			var facets = new List<List<Vertex>>();
 			//Создаем список смежности
-			var adjacencyList = graph.Vertices.ToDictionary(vertex => vertex, vertex => vertex.ConnectedVertices);
+			var adjacencyList = graph.Vertices.Values.ToDictionary(vertex => vertex, vertex => vertex.ConnectedVertices);
 			foreach (var item in adjacencyList)
 			{
 				// где связанные вершины сотируем по поляному углу
@@ -70,7 +70,7 @@ namespace GraphSdk
 				Vertices = Enumerable
 					.Range(0, facets.Count)
 					.Select(i => new Vertex(i, facets[i][0].Position))
-					.ToList()
+					.ToDictionary(_ => _.Id, _ => _)
 			};
 
 			for (var i = 0; i < facetGraph.Vertices.Count; i++)
@@ -85,14 +85,14 @@ namespace GraphSdk
 
 			//Создаем матрицу кратчайших путей
 			var alfa = 2;
-			var probabilities = facetGraph.Vertices
-				.ToDictionary(
+			var probabilities = facetGraph.Vertices.Values
+                .ToDictionary(
 					vertex => vertex.Id,
 					vertex => facetGraph
 						.GetShortestPaths(vertex.Id)
 						.ToDictionary(pair => pair.Key, pair => Math.Pow(pair.Value - 1, -alfa)));
 			var addPerVertex = graph.Edges.Count * NonPlanarPercent / 100d / graph.Vertices.Count;
-			foreach (var vertex in graph.Vertices)
+			foreach (var vertex in graph.Vertices.Values)
 			{
 				var toAdd = addPerVertex;
 				do

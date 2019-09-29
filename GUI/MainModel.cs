@@ -46,7 +46,7 @@ namespace GUI
 		}
 
 		public static List<Point> GetVertices() =>
-			s_graph.Vertices.Select(vertex => vertex.Position).ToList();
+			s_graph.Vertices.Values.Select(vertex => vertex.Position).ToList();
 
 		public static List<(Point, Point)> GetPlanarEdges() =>
 			s_graph.Edges.Select(edge => (edge.A.Position, edge.B.Position)).ToList();

@@ -13,13 +13,13 @@ namespace GraphSdk
 
 		private static bool CheckPath(this Graph graph, Vertex a, Vertex b, Dictionary<Edge, bool> active)
 		{
-			var distance = graph.Vertices.ToDictionary(vertex => vertex.Id, vertex => int.MaxValue);
-			var used = graph.Vertices.ToDictionary(vertex => vertex.Id, vertex => false);
+			var distance = graph.Vertices.Values.ToDictionary(vertex => vertex.Id, vertex => int.MaxValue);
+			var used = graph.Vertices.Values.ToDictionary(vertex => vertex.Id, vertex => false);
 			distance[a.Id] = 0;
 			foreach (var i in graph.Vertices)
 			{
 				Vertex v = null;
-				foreach (var j in graph.Vertices)
+				foreach (var j in graph.Vertices.Values)
 					if (!used[j.Id] && (v == null || distance[j.Id] < distance[v.Id]))
 						v = j;
 				if (distance[v.Id] == int.MaxValue)
@@ -36,13 +36,13 @@ namespace GraphSdk
 
 		private static bool CheckPath(this Graph graph, Vertex a, Vertex b, Dictionary<long, bool> active)
 		{
-			var distance = graph.Vertices.ToDictionary(vertex => vertex.Id, vertex => int.MaxValue);
-			var used = graph.Vertices.ToDictionary(vertex => vertex.Id, vertex => false);
+			var distance = graph.Vertices.Values.ToDictionary(vertex => vertex.Id, vertex => int.MaxValue);
+			var used = graph.Vertices.Values.ToDictionary(vertex => vertex.Id, vertex => false);
 			distance[a.Id] = 0;
 			foreach (var i in graph.Vertices)
 			{
 				Vertex v = null;
-				foreach (var j in graph.Vertices)
+				foreach (var j in graph.Vertices.Values)
 					if (!used[j.Id] && (v == null || distance[j.Id] < distance[v.Id]))
 						v = j;
 				if (distance[v.Id] == int.MaxValue)
@@ -61,8 +61,8 @@ namespace GraphSdk
 		public static double GetVertexPercolation(Graph graph, double probability, int tryCount = 10)
 		{
 			var random = new Random();
-			var active = graph.Vertices.ToDictionary(vertex => vertex.Id, vertex => random.NextDouble() >= probability);
-			var list = graph.Vertices.Where(vertex => active[vertex.Id]).ToList();
+			var active = graph.Vertices.Values.ToDictionary(vertex => vertex.Id, vertex => random.NextDouble() >= probability);
+			var list = graph.Vertices.Values.Where(vertex => active[vertex.Id]).ToList();
 			var counter = 0;
 			for (var i = 0; i < tryCount; i++)
 			{

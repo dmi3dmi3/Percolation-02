@@ -32,7 +32,7 @@ namespace CubicLattice
 
 			for (var i = 0; i < inRow; i++)
 				for (var j = 0; j < inRow; j++)
-					graph.Vertices.Add(matrix[i, j]);
+					graph.Vertices.Add(matrix[i, j].Id, matrix[i, j]);
 
 			return graph;
 		}

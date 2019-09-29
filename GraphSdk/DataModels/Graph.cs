@@ -6,12 +6,12 @@ namespace GraphSdk.DataModels
 {
 	public class Graph
 	{
-		public List<Vertex> Vertices { get; set; }
+		public Dictionary<long, Vertex> Vertices { get; set; }
 		public List<Edge> Edges { get; set; }
 
 		public Graph()
 		{
-			Vertices = new List<Vertex>();
+			Vertices = new Dictionary<long, Vertex>();
 			Edges = new List<Edge>();
 		}
 
@@ -26,8 +26,8 @@ namespace GraphSdk.DataModels
 
 		public void AddEdge(long idA, long idB)
 		{
-			var a = Vertices.First(vertex => vertex.Id == idA);
-			var b = Vertices.First(vertex => vertex.Id == idB);
+			var a = Vertices[idA];
+			var b = Vertices[idB];
 			AddEdge(a, b);
 		}
 
@@ -44,13 +44,13 @@ namespace GraphSdk.DataModels
 		public Dictionary<long, long> GetShortestPaths(long start)
 		{
 			const long max = long.MaxValue - 1;
-			var distance = Vertices.ToDictionary(vertex => vertex.Id, vertex => max);
-			var used = Vertices.ToDictionary(vertex => vertex.Id, vertex => false);
+			var distance = Vertices.Values.ToDictionary(vertex => vertex.Id, vertex => max);
+			var used = Vertices.Values.ToDictionary(vertex => vertex.Id, vertex => false);
 			distance[start] = 0;
 			foreach (var i in Vertices)
 			{
 				Vertex v = null;
-				foreach (var j in Vertices)
+				foreach (var j in Vertices.Values)
 					if (!used[j.Id] && (v == null || distance[j.Id] < distance[v.Id]))
 						v = j;
 				if (distance[v.Id] == max)

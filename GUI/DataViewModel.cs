@@ -375,36 +375,36 @@ namespace GUI
 			CanvasItemsSource = new ObservableCollection<Shape>();
 
 			if (BlueConnections != null)
-				foreach (var item in BlueConnections.Select(_ => new Line()
-				{
-					X1 = _.Item1.X,
-					Y1 = _.Item1.Y,
-					X2 = _.Item2.X,
-					Y2 = _.Item2.Y,
-					Stroke = Brushes.Blue
-				}))
-					CanvasItemsSource.Add(item);
+				foreach (var (point1, point2) in BlueConnections)
+					CanvasItemsSource.Add(new Line
+                    {
+                        X1 = point1.X,
+                        Y1 = point1.Y,
+                        X2 = point2.X,
+                        Y2 = point2.Y,
+                        Stroke = Brushes.Blue
+                    });
 
 			if (GreenConnections != null)
-				foreach (var item in GreenConnections.Select(_ => new Line()
-				{
-					X1 = _.Item1.X,
-					Y1 = _.Item1.Y,
-					X2 = _.Item2.X,
-					Y2 = _.Item2.Y,
-					Stroke = Brushes.Red
-				}))
-					CanvasItemsSource.Add(item);
+				foreach (var (point1, point2) in GreenConnections)
+					CanvasItemsSource.Add(new Line()
+                    {
+                        X1 = point1.X,
+                        Y1 = point1.Y,
+                        X2 = point2.X,
+                        Y2 = point2.Y,
+                        Stroke = Brushes.Red
+                    });
 
 			if (Vertices != null)
-				foreach (var item in Vertices.Select(point => new Ellipse
-				{
-					Margin = new Thickness(point.X - VertexRadius, point.Y - VertexRadius, 0, 0),
-					Width = VertexDiameter,
-					Height = VertexDiameter,
-					Fill = Brushes.IndianRed
-				}))
-					CanvasItemsSource.Add(item);
+				foreach (var item in Vertices)
+					CanvasItemsSource.Add(new Ellipse
+                    {
+                        Margin = new Thickness(item.X - VertexRadius, item.Y - VertexRadius, 0, 0),
+                        Width = VertexDiameter,
+                        Height = VertexDiameter,
+                        Fill = Brushes.IndianRed
+                    });
 		}
 
 		public bool IsNotRunning => !IsRunning;

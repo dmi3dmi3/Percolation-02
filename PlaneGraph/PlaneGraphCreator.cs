@@ -16,9 +16,9 @@ namespace PlaneGraph
 			var graph = new Graph();
 
 			var random = new Random();
-			graph.Vertices = Enumerable.Range(0, vertexCount)
-				.Select(i => new Vertex(i, new Point(random.NextDouble() * size, random.NextDouble() * size)))
-				.ToList();
+            graph.Vertices = Enumerable.Range(0, vertexCount)
+                .Select(i => new Vertex(i, new Point(random.NextDouble() * size, random.NextDouble() * size)))
+                .ToDictionary(_ => _.Id, _ => _);
 			if (graph.Vertices.Count < 2)
 				return graph;
 			if (graph.Vertices.Count == 2)
@@ -32,7 +32,7 @@ namespace PlaneGraph
 			// и соеденим с ближайшей к ней точке, оброзовав первую грань графа.
 
 			var first = graph.Vertices[0];
-			foreach (var v in graph.Vertices)
+			foreach (var v in graph.Vertices.Values)
 				if (v.X < first.X
 					|| v.X == first.X && v.Y < first.Y)
 					first = v;
@@ -45,7 +45,7 @@ namespace PlaneGraph
 				range[i] = x * x + y * y;
 			}
 
-			var sortedVertices = graph.Vertices.ToArray();
+			var sortedVertices = graph.Vertices.Values.ToArray();
 			Array.Sort(range, sortedVertices);
 
 			var vertex = new TrisVertex[sortedVertices.Length];

@@ -1,4 +1,5 @@
-﻿using GraphSdk;
+﻿using System.Collections.Generic;
+using GraphSdk;
 using GraphSdk.DataModels;
 using OsmSharp;
 using OsmSharp.Streams;
@@ -31,7 +32,7 @@ namespace OsmLoader
                     .Cast<Node>()
 					.Where(_ => _.Id.HasValue && _.Longitude.HasValue && _.Latitude.HasValue)
 					.Select(_ => new Vertex(_.Id.Value, new Point(_.Longitude.Value, _.Latitude.Value)))
-					.ToList();
+					.ToDictionary(_ => _.Id, _ => _);
 				graph.Vertices = nodes;
 
 
@@ -56,27 +57,28 @@ namespace OsmLoader
 
 			}
 
-			for (var i = 0; i < graph.Vertices.Count;)
-			{
-				if (!graph.Vertices[i].ConnectedVertices.Any())
-					graph.Vertices.RemoveAt(i);
-				else
-					i++;
-			}
+            var toDelete = new List<long>();
+            foreach (var vertex in graph.Vertices)
+                if (!vertex.Value.ConnectedVertices.Any())
+                    toDelete.Add(vertex.Key);
+
+            foreach (var l in toDelete)
+                graph.Vertices.Remove(l);
 
             var minVec = new Vector(
-                graph.Vertices.Select(_ => _.X).Min(), 
-                graph.Vertices.Select(_ => _.Y).Min());
-            graph.Vertices.ForEach(_ => _.Position = Point.Add(_.Position, -minVec));
+                graph.Vertices.Values.Select(_ => _.X).Min(), 
+                graph.Vertices.Values.Select(_ => _.Y).Min());
+            foreach (var kvp in graph.Vertices)
+                kvp.Value.Position = Point.Add(kvp.Value.Position, -minVec);
 
-            var maxX = graph.Vertices.Select(_ => _.X).Max();
-            var maxY = graph.Vertices.Select(_ => _.Y).Max();
+            var maxX = graph.Vertices.Values.Select(_ => _.X).Max();
+            var maxY = graph.Vertices.Values.Select(_ => _.Y).Max();
 
             var XKoef = size / maxX;
             var YKoef = size / maxY;
 
-            graph.Vertices.ForEach(_ => _.Position = new Point(_.X * XKoef, _.Y * YKoef));
-
+            foreach (var vertex in graph.Vertices.Values)
+                vertex.Position = new Point(vertex.X * XKoef, vertex.Y * YKoef);
 
             return graph;
 		}
